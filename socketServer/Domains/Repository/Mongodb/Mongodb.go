@@ -1,7 +1,9 @@
 package Mongodb
 
 import (
+	"errors"
 	"gnommoApiRest/Config"
+	model "socket/socketServer/Model"
 
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -48,10 +50,12 @@ func GetBidOfAnAuction(auctionId bson.ObjectId, userId bson.ObjectId, db *mgo.Se
 	}
 }
 
-func ExistsToken(token string, db *mgo.Session) bool {
+func ExistsToken(token string, db *mgo.Session) (model.GAuthToken, error) {
 	dbsession := db.Copy()
 	defer dbsession.Close()
 	collection := SetCollection(dbsession, "gAuthToken")
+
+	var modelToReturn model.GAuthToken
 
 	if token != "" {
 
@@ -59,16 +63,15 @@ func ExistsToken(token string, db *mgo.Session) bool {
 		match := bson.M{"$match": bson.M{"token": token}}
 		pipeline = append(pipeline, match)
 
-		var modelToReturn bson.M
 		pipe := collection.Pipe(pipeline)
 		errFind := pipe.One(&modelToReturn)
 		if errFind != nil {
-			return false
+			return modelToReturn, errFind
 		}
 
-		return true
-	} else {
-		return false
-	}
+		return modelToReturn, nil
 
+	} else {
+		return modelToReturn, errors.New("Unauthorized")
+	}
 }

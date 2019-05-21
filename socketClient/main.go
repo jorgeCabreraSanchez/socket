@@ -3,54 +3,75 @@ package main
 import (
 	"flag"
 	"log"
+	"net/url"
+	"os"
+	"os/signal"
 	"time"
 
 	"github.com/gorilla/websocket"
-	socketio "github.com/graarh/golang-socketio"
-	"github.com/graarh/golang-socketio/transport"
-	"gopkg.in/mgo.v2/bson"
 )
 
+var addr = flag.String("addr", "localhost:5000", "http service address")
+var auth = flag.String("Authorization", "Bearer _qM8B8Yqj_UHOVWGKW-vJ2E4Dn_BwOWuuAdowFXovZq3oGEaFNwkm0Ns9Az8ULDcb34Z_FxbYW9xtfeQylHr_YaDpYeodAOPTFewiLI3sPVTxfYucreBI14Sd_t92HuyPZlsaJ9V9eDcBWf_wXuB7yTd7flJ2B7f3hlWoOz3RuMTxe5fvlIHwYBNDXGAxb1mOjU9g9ieMYsmAQ1Y-SZemS6GXw_uLvk8aG46ZY2tXWirGH4Fobcb6kQAUUdLZqfyEuAkjqpHNhHCyXLry0U0vCWMuSBgm2AedpHOT1dMOLYV4Cg=", "auth for socket")
+
 func main() {
-	auth := flag.String("Authorization", "Bearer _qM8B8Yqj_UHOVWGKW-vJ2E4Dn_BwOWuuAdowFXovZq3oGEaFNwkm0Ns9Az8ULDcb34Z_FxbYW9xtfeQylHr_YaDpYeodAOPTFewiLI3sPVTxfYucreBI14Sd_t92HuyPZlsaJ9V9eDcBWf_wXuB7yTd7flJ2B7f3hlWoOz3RuMTxe5fvlIHwYBNDXGAxb1mOjU9g9ieMYsmAQ1Y-SZemS6GXw_uLvk8aG46ZY2tXWirGH4Fobcb6kQAUUdLZqfyEuAkjqpHNhHCyXLry0U0vCWMuSBgm2AedpHOT1dMOLYV4Cg=", "auth for socket")
 	flag.Parse()
+	log.SetFlags(0)
 
-	url := socketio.GetUrl("localhost", 5000, false)
-	defaultTransport := transport.GetDefaultWebsocketTransport()
+	interrupt := make(chan os.Signal, 1)
+	signal.Notify(interrupt, os.Interrupt)
 
-	defaultTransport.RequestHeader = make(map[string][]string)
-	defaultTransport.RequestHeader.Set("Authorization", *auth)
+	u := url.URL{Scheme: "ws", Host: *addr, Path: "/socket.io/"}
+	log.Printf("connecting to %s", u.String())
 
-	log.Print(*auth)
-
-	socket, err := socketio.Dial(url, defaultTransport)
+	c, _, err := websocket.DefaultDialer.Dial(u.String(), map[string][]string{"Authorization": []string{*auth}})
 	if err != nil {
-		if err == websocket.ErrBadHandshake {
-			log.Print(err)
-		} else {
-			log.Fatal(err)
-		}
-	} else {
-		defer socket.Close()
-
-		socket.On("message", func(c *socketio.Channel, tal string) {
-			log.Print(tal)
-		})
-
-		type matchBid struct {
-			AuctionId bson.ObjectId `json:"auctionId,omitempty" bson:"auctionId,omitempty"`
-			UserId    bson.ObjectId `json:"userId,omitempty" bson:"userId,omitempty"`
-		}
-
-		socket.On("connection", func(c *socketio.Channel) {
-			err := c.Emit("subscribteToAnAuction", "hola")
-			if err != nil {
-				log.Fatal(err)
-			}
-
-		})
-
-		<-time.After(time.Duration(24 * time.Hour))
+		log.Fatal("dial:", err)
 	}
+	defer c.Close()
 
+	done := make(chan struct{})
+
+	go func() {
+		defer close(done)
+		for {
+			_, message, err := c.ReadMessage()
+			if err != nil {
+				log.Println("read:", err)
+				return
+			}
+			log.Printf("recv: %s", message)
+		}
+	}()
+
+	ticker := time.NewTicker(time.Second)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-done:
+			return
+		case t := <-ticker.C:
+			err := c.WriteMessage(websocket.TextMessage, []byte(t.String()))
+			if err != nil {
+				log.Println("write:", err)
+				return
+			}
+		case <-interrupt:
+			log.Println("interrupt")
+
+			// Cleanly close the connection by sending a close message and then
+			// waiting (with timeout) for the server to close the connection.
+			err := c.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
+			if err != nil {
+				log.Println("write close:", err)
+				return
+			}
+			select {
+			case <-done:
+			case <-time.After(time.Second):
+			}
+			return
+		}
+	}
 }

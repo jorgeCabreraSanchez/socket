@@ -7,10 +7,9 @@ import (
 	"socket/socketServer/Config"
 	"socket/socketServer/Domains/Repository/Mongodb"
 	"socket/socketServer/Domains/Services/Auth"
-	socketio "socket/socketServer/Domains/Services/Socketio"
+	socket "socket/socketServer/Domains/Services/Socket"
 
-	gosocketio "github.com/graarh/golang-socketio"
-	"github.com/graarh/golang-socketio/transport"
+	"github.com/gorilla/websocket"
 )
 
 func main() {
@@ -19,13 +18,13 @@ func main() {
 
 	fmt.Println("Socket Started")
 
-	server := gosocketio.NewServer(transport.GetDefaultWebsocketTransport())
+	var upgrader = websocket.Upgrader{} // use default options
 
-	socketio.Connection(server, db.Session)
-	socketio.Disconnection(server)
-	socketio.Error(server)
-	socketio.SubscribeToAuction(server, db.Session)
+	// socketio.Connection(server, db.Session)
+	// socketio.Disconnection(server)
+	// socketio.Error(server)
+	// socketio.SubscribeToAuction(server, db.Session)
 
-	http.Handle("/socket.io/", Auth.AuthMiddleware(server, db.Session))
+	http.Handle("/socket.io/", Auth.AuthMiddleware(socket.StartServer(upgrader), db.Session))
 	log.Fatal(http.ListenAndServe(":"+config.StatusMicro.Port, nil))
 }
