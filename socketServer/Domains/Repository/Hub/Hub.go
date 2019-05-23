@@ -1,49 +1,54 @@
 package Hub
 
-import model "socket/socketServer/Model"
+import (
+	"encoding/json"
+	"log"
+	model "socket/socketServer/Model"
+)
 
 // Hub maintains the set of active clients and broadcasts messages to the
 // clients.
 type Hub struct {
 	// set client has participant of a room.
-	enterRoom chan map[string]*model.Client
+	EnterRoom chan map[string]*model.Client
 
 	// create chatRoom.
-	createRoom chan string
+	CreateRoom chan string
 
 	// channels with his participants
-	rooms map[string][]*model.Client
+	Rooms map[string][]*model.Client
 
 	// get participant of a room
-	getRooms chan string
+	UpdatedChatRoom chan string
 }
 
-func newHub() *Hub {
+func NewHub() *Hub {
 	return &Hub{
-		rooms:                  make(map[string][]*model.Client),
-		enterRoom:              make(chan map[string]*model.Client),
-		createRoom:             make(chan string),
-		sendMessageToAChatRoom: make(chan string),
+		Rooms:           make(map[string][]*model.Client),
+		EnterRoom:       make(chan map[string]*model.Client),
+		CreateRoom:      make(chan string),
+		UpdatedChatRoom: make(chan string),
 	}
 }
 
-func (h *Hub) run() {
+func (h *Hub) Run() {
 	for {
 		select {
-		case enterRoom := <-h.enterRoom:
+		case enterRoom := <-h.EnterRoom:
 			for k, v := range enterRoom {
-				h.rooms[k] = append(h.rooms[k], v)
+				h.Rooms[k] = append(h.Rooms[k], v)
 			}
-		case room := <-h.createRoom:
-			h.rooms[room] = []*model.Client{}
-		case chatRoomId := <-h.sendMessageToAChatRoom:
-			for room := range h.rooms {
-
+		case room := <-h.CreateRoom:
+			h.Rooms[room] = []*model.Client{}
+			log.Print("room " + room + " created")
+		case chatRoomId := <-h.UpdatedChatRoom:
+			for _, client := range h.Rooms[chatRoomId] {
+				tal, _ := json.Marshal("tal")
 				select {
-				case client.send <- message:
+				case client.Send <- tal:
 				default:
-					close(client.send)
-					delete(h.clients, client)
+					close(client.Send)
+					// delete(h.clients, client)
 				}
 			}
 		}

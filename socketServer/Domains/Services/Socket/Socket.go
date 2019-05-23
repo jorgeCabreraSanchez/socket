@@ -3,18 +3,26 @@ package socket
 import (
 	"log"
 	"net/http"
+	"socket/socketServer/Domains/Repository/Hub"
+
+	"gopkg.in/mgo.v2"
 
 	"github.com/gorilla/websocket"
 )
 
-func StartServer(upgrader websocket.Upgrader, hub *Hub) http.Handler {
+func StartServer(upgrader websocket.Upgrader, hub *Hub.Hub, db *mgo.Session) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
+
 		c, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			log.Print("upgrade:", err)
 			return
 		}
 		defer c.Close()
+
+		// find all auctions that I do a bid
+		// Mongodb.GetAuctionsThatIdoABidWithHisAvg(c)
+
 		for {
 			mt, message, err := c.ReadMessage()
 			if err != nil {
@@ -28,6 +36,7 @@ func StartServer(upgrader websocket.Upgrader, hub *Hub) http.Handler {
 				break
 			}
 		}
+
 	}
 	return http.HandlerFunc(fn)
 }

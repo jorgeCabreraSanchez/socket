@@ -12,7 +12,7 @@ import (
 )
 
 var addr = flag.String("addr", "localhost:5000", "http service address")
-var auth = flag.String("Authorization", "Bearer _qM8B8Yqj_UHOVWGKW-vJ2E4Dn_BwOWuuAdowFXovZq3oGEaFNwkm0Ns9Az8ULDcb34Z_FxbYW9xtfeQylHr_YaDpYeodAOPTFewiLI3sPVTxfYucreBI14Sd_t92HuyPZlsaJ9V9eDcBWf_wXuB7yTd7flJ2B7f3hlWoOz3RuMTxe5fvlIHwYBNDXGAxb1mOjU9g9ieMYsmAQ1Y-SZemS6GXw_uLvk8aG46ZY2tXWirGH4Fobcb6kQAUUdLZqfyEuAkjqpHNhHCyXLry0U0vCWMuSBgm2AedpHOT1dMOLYV4Cg=", "auth for socket")
+var auth = flag.String("Authorization", "Bearer _QM8B8Yqj_UHOVWGKW-vJ2E4Dn_BwOWuuAdowFXovZq3oGEaFNwkm0Ns9Az8ULDcb34Z_FxbYW9xtfeQylHr_YaDpYeodAOPTFewiLI3sPVTxfYucreBI14Sd_t92HuyPZlsaJ9V9eDcBWf_wXuB7yTd7flJ2B7f3hlWoOz3RuMTxe5fvlIHwYBNDXGAxb1mOjU9g9ieMYsmAQ1Y-SZemS6GXw_uLvk8aG46ZY2tXWirGH4Fobcb6kQAUUdLZqfyEuAkjqpHNhHCyXLry0U0vCWMuSBgm2AedpHOT1dMOLYV4Cg=", "auth for socket")
 
 func main() {
 	flag.Parse()
@@ -44,7 +44,7 @@ func main() {
 		}
 	}()
 
-	ticker := time.NewTicker(time.Second)
+	ticker := time.NewTicker(time.Minute)
 	defer ticker.Stop()
 
 	for {

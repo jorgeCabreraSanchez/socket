@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"socket/socketServer/Config"
+	"socket/socketServer/Domains/Repository/Hub"
 	"socket/socketServer/Domains/Repository/Mongodb"
 	"socket/socketServer/Domains/Services/Auth"
 	socket "socket/socketServer/Domains/Services/Socket"
@@ -23,8 +24,10 @@ func main() {
 	// socketio.Connection(server, db.Session)
 	// socketio.Disconnection(server)
 	// socketio.Error(server)
-	// socketio.SubscribeToAuction(server, db.Session)
+	// socketio.SubscribeToAuction(server, db.Session
 
-	http.Handle("/socket.io/", Auth.AuthMiddleware(socket.StartServer(upgrader), db.Session))
+	hub := Hub.NewHub()
+	go hub.Run()
+	http.Handle("/socket.io/", Auth.AuthMiddleware(socket.StartServer(upgrader, hub, db.Session), db.Session))
 	log.Fatal(http.ListenAndServe(":"+config.StatusMicro.Port, nil))
 }

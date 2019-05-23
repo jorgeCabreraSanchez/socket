@@ -26,6 +26,29 @@ func SetCollection(session *mgo.Session, collection string) *mgo.Collection {
 	return session.DB(mongoConfig.Name).C(collection)
 }
 
+func GetAuctionsThatIdoABidWithHisAvg(userId bson.ObjectId, db *mgo.Session) ([]bson.M, error) {
+	dbsession := db.Copy()
+	defer dbsession.Close()
+	collection := SetCollection(dbsession, "bids")
+
+	var pipeline []bson.M
+	match := bson.M{"userId": userId, "instance.status": "ACTIVE", "won": bson.M{"$exists": false}}
+	pipeline = append(pipeline, match)
+
+	lookup := bson.M{"$lookup": bson.M{"from": "bids", "localField": "auctionId", "foreignField": "auctionId", "as": "auctions"}}
+	pipeline = append(pipeline, lookup)
+
+	var modelToReturn []bson.M
+	pipe := collection.Pipe(pipeline)
+	errFind := pipe.All(&modelToReturn)
+	if errFind != nil {
+		return nil, errFind
+	}
+
+	return modelToReturn, nil
+
+}
+
 func GetBidOfAnAuction(auctionId bson.ObjectId, userId bson.ObjectId, db *mgo.Session) (bson.M, error) {
 	dbsession := db.Copy()
 	defer dbsession.Close()
