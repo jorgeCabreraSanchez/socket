@@ -1,42 +1,44 @@
 package Hub
 
+import model "socket/socketServer/Model"
+
 // Hub maintains the set of active clients and broadcasts messages to the
 // clients.
 type Hub struct {
-	// Registered clients.
-	clients map[*Client]bool
+	// set client has participant of a room.
+	enterRoom chan map[string]*model.Client
 
-	// Inbound messages from the clients.
-	broadcast chan []byte
+	// create chatRoom.
+	createRoom chan string
 
-	// Register requests from the clients.
-	register chan *Client
+	// channels with his participants
+	rooms map[string][]*model.Client
 
-	// Unregister requests from clients.
-	unregister chan *Client
+	// get participant of a room
+	getRooms chan string
 }
 
 func newHub() *Hub {
 	return &Hub{
-		broadcast:  make(chan []byte),
-		register:   make(chan *Client),
-		unregister: make(chan *Client),
-		clients:    make(map[*Client]bool),
+		rooms:                  make(map[string][]*model.Client),
+		enterRoom:              make(chan map[string]*model.Client),
+		createRoom:             make(chan string),
+		sendMessageToAChatRoom: make(chan string),
 	}
 }
 
 func (h *Hub) run() {
 	for {
 		select {
-		case client := <-h.register:
-			h.clients[client] = true
-		case client := <-h.unregister:
-			if _, ok := h.clients[client]; ok {
-				delete(h.clients, client)
-				close(client.send)
+		case enterRoom := <-h.enterRoom:
+			for k, v := range enterRoom {
+				h.rooms[k] = append(h.rooms[k], v)
 			}
-		case message := <-h.broadcast:
-			for client := range h.clients {
+		case room := <-h.createRoom:
+			h.rooms[room] = []*model.Client{}
+		case chatRoomId := <-h.sendMessageToAChatRoom:
+			for room := range h.rooms {
+
 				select {
 				case client.send <- message:
 				default:
