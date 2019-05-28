@@ -10,6 +10,7 @@ import (
 type Config struct {
 	Mongo       Mongo       `json:"mongo,omitempty" bson:"mongo,omitempty"`
 	StatusMicro StatusMicro `json:"statusMicro,omitempty" bson:"statusMicro,omitempty"`
+	GrpcMicro   GrpcMicro   `json:"grpcMicro,omitempty" bson:"grpcMicro,omitempty"`
 }
 
 type Mongo struct {
@@ -19,6 +20,10 @@ type Mongo struct {
 }
 
 type StatusMicro struct {
+	Port string `json:"port,omitempty" bson:"port,omitempty"`
+}
+
+type GrpcMicro struct {
 	Port string `json:"port,omitempty" bson:"port,omitempty"`
 }
 

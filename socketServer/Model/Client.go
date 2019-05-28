@@ -6,11 +6,13 @@ import (
 )
 
 type Client struct {
-	userId bson.ObjectId `json:"userId,omitempty" bson:"userId,omitempty"`
+	UserId bson.ObjectId `json:"userId,omitempty" bson:"userId,omitempty"`
 
 	// The websocket connection.
-	conn websocket.Conn `json:"conn,omitempty" bson:"conn,omitempty"`
+	Conn *websocket.Conn `json:"conn,omitempty" bson:"conn,omitempty"`
 
 	// Buffered channel of outbound messages.
 	Send chan []byte `json:"send,omitempty" bson:"send,omitempty"`
+
+	Hub *Hub
 }

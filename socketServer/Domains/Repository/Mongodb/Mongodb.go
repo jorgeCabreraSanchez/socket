@@ -4,6 +4,7 @@ import (
 	"errors"
 	"gnommoApiRest/Config"
 	model "socket/socketServer/Model"
+	"time"
 
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -32,17 +33,42 @@ func GetAuctionsThatIdoABidWithHisAvg(userId bson.ObjectId, db *mgo.Session) ([]
 	collection := SetCollection(dbsession, "bids")
 
 	var pipeline []bson.M
-	match := bson.M{"userId": userId, "instance.status": "ACTIVE", "won": bson.M{"$exists": false}}
+	matchBids := bson.M{"$match": bson.M{"userId": userId, "instance.status": "ACTIVE", "won": bson.M{"$exists": false}}}
+	pipeline = append(pipeline, matchBids)
+
+	lookup := bson.M{"$lookup": bson.M{"from": "bids", "localField": "auctionId", "foreignField": "auctionId", "as": "bids"}}
+	pipeline = append(pipeline, lookup)
+
+	unwind := bson.M{"$unwind": bson.M{"path": "$bids", "preserveNullAndEmptyArrays": true}}
+	pipeline = append(pipeline, unwind)
+
+	matchInstance := bson.M{"$match": bson.M{"bids.instance.status": "ACTIVE"}}
+	pipeline = append(pipeline, matchInstance)
+
+	lookupAuctions := bson.M{"$lookup": bson.M{"from": "auctions", "localField": "bids.auctionId", "foreignField": "_id", "as": "bids.auction"}}
+	pipeline = append(pipeline, lookupAuctions)
+
+	unwindAuctions := bson.M{"$unwind": bson.M{"path": "$bids.auction", "preserveNullAndEmptyArrays": true}}
+	pipeline = append(pipeline, unwindAuctions)
+
+	match := bson.M{"$match": bson.M{"bids.auction.finishAuctionTime": bson.M{"$gte": time.Now().UnixNano() / int64(time.Millisecond)}}}
 	pipeline = append(pipeline, match)
 
-	lookup := bson.M{"$lookup": bson.M{"from": "bids", "localField": "auctionId", "foreignField": "auctionId", "as": "auctions"}}
-	pipeline = append(pipeline, lookup)
+	groupAuctions := bson.M{"$group": bson.M{
+		"_id": "$auctionId",
+		"avg": bson.M{"$avg": "$bids.offert"},
+	}}
+	pipeline = append(pipeline, groupAuctions)
 
 	var modelToReturn []bson.M
 	pipe := collection.Pipe(pipeline)
 	errFind := pipe.All(&modelToReturn)
 	if errFind != nil {
 		return nil, errFind
+	}
+
+	if modelToReturn == nil {
+		modelToReturn = []bson.M{}
 	}
 
 	return modelToReturn, nil

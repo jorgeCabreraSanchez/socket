@@ -6,6 +6,9 @@
     },
     "statusMicro": {
       "port": "5000"
+    },
+    "grpcMicro": {
+      "port": "50001"
     }
   }
   
