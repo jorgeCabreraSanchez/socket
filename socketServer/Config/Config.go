@@ -29,7 +29,8 @@ type GrpcMicro struct {
 
 //Load configuration from file.
 func GetAll() Config {
-	jsonFile, err := os.Open(GetEnvRoute() + "Config/config." + getEnv() + ".json")
+	// jsonFile, err := os.Open(GetEnvRoute() + "Config/config." + getEnv() + ".json")
+	jsonFile, err := os.Open("/home/jorge/codeHome/go/src/socket/socketServer/Config/config.dev.json")
 
 	if err != nil {
 		fmt.Println(err)

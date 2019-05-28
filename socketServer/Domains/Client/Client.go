@@ -3,10 +3,13 @@ package Client
 import (
 	"bytes"
 	"log"
+	"net/http"
 	model "socket/socketServer/Model"
 	"time"
 
 	"github.com/gorilla/websocket"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 const (
@@ -104,4 +107,57 @@ func (clientInterface *ClientInterface) WritePump() {
 			}
 		}
 	}
+}
+
+func ServeWs(upgrader websocket.Upgrader, hub *model.Hub, db *mgo.Session) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+
+		c, err := upgrader.Upgrade(w, r, nil)
+		if err != nil {
+			log.Print("upgrade:", err)
+			return
+		}
+		defer c.Close()
+
+		client := &ClientInterface{
+			Client: &model.Client{Conn: c, Send: make(chan []byte, 256), Hub: hub, UserId: bson.ObjectIdHex(r.Header.Get("userId"))},
+		}
+
+		// Allow collection of memory referenced by the caller by doing all work in
+		// new goroutines.
+		go client.WritePump()
+		go client.ReadPump()
+
+		hub.RegisterClient <- client.Client
+
+		// find all auctions that I do a bid
+		// avgAuctions, err := Mongodb.GetAuctionsThatIdoABidWithHisAvg(bson.ObjectIdHex(r.Header.Get("userId")), db)
+		// if err != nil {
+		// 	log.Print("find first auctions: ", err)
+		// 	return
+		// }
+
+		// firstAvgAuctions, err := json.Marshal(avgAuctions)
+		// if err != nil {
+		// 	log.Print("Error parsing first avg auctions: ", err)
+		// 	return
+		// }
+		// c.WriteMessage(1, firstAvgAuctions)
+
+		for {
+			mt, message, err := c.ReadMessage()
+			if err != nil {
+				log.Println("read:", err)
+				break
+			}
+			log.Printf("recv: %s", message)
+			err = c.WriteMessage(mt, message)
+			if err != nil {
+				log.Println("write:", err)
+				break
+			}
+		}
+
+	}
+	return http.HandlerFunc(fn)
 }

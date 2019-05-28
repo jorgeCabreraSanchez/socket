@@ -11,8 +11,8 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var addr = flag.String("addr", "localhost:5000", "http service address")
-var auth = flag.String("Authorization", "Bearer WQzSqFQfDycXmOAU6tk4aCrMVaDEL2WMp6Cc3LQp3-TuH2WWSFhRmSGk0hVRkGaOGLKrsLgmgVmtvcPqjg8Y4-F7vIp1LIdn8DE_xmFQuD4CazBSuPc2Jnk9zE8n71JX8ScuvNH8sF3x9Tm-tYVpNB-RDN8FGIxUawbtxuzqUoOdyEIIrV45P6Ebl49fkLP8zoa_WnhibvRJRT0x9yvpHJWbkkXC823wP62j_Ejk7y6eyjGK1WhHm7zO4rMBIEMSpZZ6-vWkqRUMdFd0KJuaOmJeuw51cDmVWRHk9969cCKGDXNacw==", "auth for socket")
+var addr = flag.String("addr", "localhost:5001", "http service address")
+var auth = flag.String("Authorization", "Bearer s0aKwZJ2JRmO9n8O-ZIJN0iIH-zpHfAeJ9WHmgAMtaD2s_JsqquzX2l2oAE-kOagXkNqOrbwNps70NEY1PKvNTilRA_aKxtM2VwUdw8Rb5fORvIzbrP07o0p9YsvLpbimh-7ugMAcZmmqytyQyeW5R9JLmW2LomR_2jxJNiDInARNsGKa34Mw3s5ASH7Kjodqwu_63GOzpHRjRJLnZHgOlNV6SDqzLP0rnkYT2y_5520Te9-NQiZct_pKPlIiKx2Z0oy78c9Wj8_zrUjG2ZtOWltrhomZ526DtHCOsC9X70rWp0YXg==", "auth for socket")
 
 func main() {
 	flag.Parse()

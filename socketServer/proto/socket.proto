@@ -19,15 +19,20 @@ package socket;
 // The greeting service definition.
 service Socket {
   // Sends a greeting
-  rpc UploadAuction (AuctionId) returns (Err) {}
+  rpc UploadAuction (UploadAuctionBody) returns (Empty) {}
+
+  rpc ListenRoom (ListenRoomBody) returns (Empty) {}
 }
 
 // The request message containing the user's name.
-message AuctionId {
+message UploadAuctionBody {
   string auctionId = 1;
 }
 
-// The response message containing the greetings
-message Err {
-  string message = 1;
+message ListenRoomBody {
+  string auctionId = 1;
+  string userId = 2;
 }
+
+message Empty {}
+ 

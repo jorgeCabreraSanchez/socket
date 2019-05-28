@@ -7,10 +7,10 @@ import (
 	"net"
 	"net/http"
 	"socket/socketServer/Config"
+	"socket/socketServer/Domains/Client"
 	"socket/socketServer/Domains/Repository/Hub"
 	"socket/socketServer/Domains/Repository/Mongodb"
 	"socket/socketServer/Domains/Services/Auth"
-	socket "socket/socketServer/Domains/Services/Socket"
 	model "socket/socketServer/Model"
 	pb "socket/socketServer/proto"
 
@@ -24,17 +24,21 @@ type server struct {
 }
 
 // SayHello implements helloworld.SocketServer
-func (c *server) UploadAuction(ctx context.Context, in *pb.AuctionId) (*pb.Err, error) {
+func (c *server) UploadAuction(ctx context.Context, in *pb.UploadAuctionBody) (*pb.Empty, error) {
 	log.Printf("Received: %v", in.AuctionId)
 	c.Hub.UpdatedChatRoom <- in.AuctionId
-	return &pb.Err{Message: "Updated " + in.AuctionId}, nil
+	return &pb.Empty{}, nil
+}
+
+func (c *server) ListenRoom(ctx context.Context, in *pb.ListenRoomBody) (*pb.Empty, error) {
+	log.Printf("Received: %v", in.AuctionId)
+	c.Hub.EnterRoom <- &model.EnterRoom{AuctionId: in.AuctionId, UserId: in.AuctionId}
+	return &pb.Empty{}, nil
 }
 
 func main() {
 	config := Config.GetAll()
 	db := Mongodb.MongoStart()
-
-	fmt.Println("Socket Started")
 
 	var upgrader = websocket.Upgrader{} // use default options
 
@@ -45,7 +49,9 @@ func main() {
 
 	hub := Hub.NewHub()
 	go hub.Run()
-	http.Handle("/socket.io/", Auth.AuthMiddleware(socket.ServeWs(upgrader, hub.Hub, db.Session), db.Session))
+	http.Handle("/socket.io/", Auth.AuthMiddleware(Client.ServeWs(upgrader, hub.Hub, db.Session), db.Session))
+
+	log.Fatal(http.ListenAndServe(":"+config.StatusMicro.Port, nil))
 
 	lis, err := net.Listen("tcp", ":"+config.GrpcMicro.Port)
 	if err != nil {
@@ -58,5 +64,5 @@ func main() {
 		log.Fatalf("failed to serve: %v", err)
 	}
 
-	log.Fatal(http.ListenAndServe(":"+config.StatusMicro.Port, nil))
+	fmt.Println("Socket Started")
 }
