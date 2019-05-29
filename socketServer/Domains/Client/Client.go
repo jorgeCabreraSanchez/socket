@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"log"
 	"net/http"
+	"socket/socketServer/Domains/Repository/Mongodb"
 	model "socket/socketServer/Model"
 	"time"
 
@@ -17,7 +18,7 @@ const (
 	writeWait = 10 * time.Second
 
 	// Time allowed to read the next pong message from the peer.
-	pongWait = 60 * time.Second
+	pongWait = 5 * time.Second
 
 	// Send pings to peer with this period. Must be less than pongWait.
 	pingPeriod = (pongWait * 9) / 10
@@ -31,6 +32,11 @@ var (
 	space   = []byte{' '}
 )
 
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+}
+
 type ClientInterface struct {
 	Client *model.Client
 }
@@ -43,6 +49,7 @@ type ClientInterface struct {
 func (clientInterface *ClientInterface) ReadPump() {
 	c := clientInterface.Client
 	defer func() {
+		close(clientInterface.Client.Unregister)
 		c.Hub.Unregister <- c
 		c.Conn.Close()
 	}()
@@ -51,13 +58,15 @@ func (clientInterface *ClientInterface) ReadPump() {
 	c.Conn.SetPongHandler(func(string) error { c.Conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
 	for {
 		_, message, err := c.Conn.ReadMessage()
+
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				log.Printf("error: %v", err)
+				// log.Printf("error: %v", err)
 			}
 			break
 		}
 		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
+		log.Printf("%s", message)
 		// c.hub.broadcast <- message
 	}
 }
@@ -109,55 +118,43 @@ func (clientInterface *ClientInterface) WritePump() {
 	}
 }
 
-func ServeWs(upgrader websocket.Upgrader, hub *model.Hub, db *mgo.Session) http.Handler {
-	fn := func(w http.ResponseWriter, r *http.Request) {
-
-		c, err := upgrader.Upgrade(w, r, nil)
-		if err != nil {
-			log.Print("upgrade:", err)
-			return
-		}
-		defer c.Close()
-
-		client := &ClientInterface{
-			Client: &model.Client{Conn: c, Send: make(chan []byte, 256), Hub: hub, UserId: bson.ObjectIdHex(r.Header.Get("userId"))},
-		}
-
-		// Allow collection of memory referenced by the caller by doing all work in
-		// new goroutines.
-		go client.WritePump()
-		go client.ReadPump()
-
-		hub.RegisterClient <- client.Client
-
-		// find all auctions that I do a bid
-		// avgAuctions, err := Mongodb.GetAuctionsThatIdoABidWithHisAvg(bson.ObjectIdHex(r.Header.Get("userId")), db)
-		// if err != nil {
-		// 	log.Print("find first auctions: ", err)
-		// 	return
-		// }
-
-		// firstAvgAuctions, err := json.Marshal(avgAuctions)
-		// if err != nil {
-		// 	log.Print("Error parsing first avg auctions: ", err)
-		// 	return
-		// }
-		// c.WriteMessage(1, firstAvgAuctions)
-
-		for {
-			mt, message, err := c.ReadMessage()
-			if err != nil {
-				log.Println("read:", err)
-				break
-			}
-			log.Printf("recv: %s", message)
-			err = c.WriteMessage(mt, message)
-			if err != nil {
-				log.Println("write:", err)
-				break
-			}
-		}
-
+func ServeWs(hub *model.Hub, db *mgo.Session, w http.ResponseWriter, r *http.Request) {
+	c, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Print("upgrade:", err)
+		return
 	}
-	return http.HandlerFunc(fn)
+	defer c.Close()
+
+	client := &ClientInterface{
+		Client: &model.Client{Conn: c, Send: make(chan []byte, 256), Hub: hub, Unregister: make(chan bool), UserId: bson.ObjectIdHex(r.Header.Get("userId"))},
+	}
+
+	hub.RegisterClient <- client.Client
+
+	// Allow collection of memory referenced by the caller by doing all work in
+	// new goroutines.
+	go client.WritePump()
+	go client.ReadPump()
+
+	// find all auctions that I do a bid
+	auctions, err := Mongodb.GetAuctionsThatIBid(bson.ObjectIdHex(r.Header.Get("userId")), db)
+	if err != nil {
+		log.Print("find first auctions: ", err)
+		return
+	}
+
+	for _, auction := range auctions {
+		hub.EnterRoom <- &model.EnterRoom{AuctionId: auction["auctionId"].(bson.ObjectId).Hex(), UserId: client.Client.UserId.Hex()}
+	}
+
+	// firstAvgAuctions, err := json.Marshal(avgAuctions)
+	// if err != nil {
+	// 	log.Print("Error parsing first avg auctions: ", err)
+	// 	return
+	// }
+	// c.WriteMessage(1, firstAvgAuctions)
+
+	<-client.Client.Unregister
+
 }

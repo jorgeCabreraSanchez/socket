@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net"
 	"net/http"
@@ -15,8 +14,6 @@ import (
 	pb "socket/socketServer/proto"
 
 	"google.golang.org/grpc"
-
-	"github.com/gorilla/websocket"
 )
 
 type server struct {
@@ -32,15 +29,13 @@ func (c *server) UploadAuction(ctx context.Context, in *pb.UploadAuctionBody) (*
 
 func (c *server) ListenRoom(ctx context.Context, in *pb.ListenRoomBody) (*pb.Empty, error) {
 	log.Printf("Received: %v", in.AuctionId)
-	c.Hub.EnterRoom <- &model.EnterRoom{AuctionId: in.AuctionId, UserId: in.AuctionId}
+	c.Hub.EnterRoom <- &model.EnterRoom{AuctionId: in.AuctionId, UserId: in.UserId}
 	return &pb.Empty{}, nil
 }
 
 func main() {
 	config := Config.GetAll()
 	db := Mongodb.MongoStart()
-
-	var upgrader = websocket.Upgrader{} // use default options
 
 	// socketio.Connection(server, db.Session)
 	// socketio.Disconnection(server)
@@ -49,9 +44,12 @@ func main() {
 
 	hub := Hub.NewHub()
 	go hub.Run()
-	http.Handle("/socket.io/", Auth.AuthMiddleware(Client.ServeWs(upgrader, hub.Hub, db.Session), db.Session))
+	hub.CreateExistenRooms(db.Session)
+	http.Handle("/socket.io/", Auth.AuthMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		Client.ServeWs(hub.Hub, db.Session, w, r)
+	}), db.Session))
 
-	log.Fatal(http.ListenAndServe(":"+config.StatusMicro.Port, nil))
+	go http.ListenAndServe(":"+config.StatusMicro.Port, nil)
 
 	lis, err := net.Listen("tcp", ":"+config.GrpcMicro.Port)
 	if err != nil {
@@ -63,6 +61,4 @@ func main() {
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
-
-	fmt.Println("Socket Started")
 }

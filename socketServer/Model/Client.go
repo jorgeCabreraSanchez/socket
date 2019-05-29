@@ -14,5 +14,7 @@ type Client struct {
 	// Buffered channel of outbound messages.
 	Send chan []byte `json:"send,omitempty" bson:"send,omitempty"`
 
-	Hub *Hub
+	Hub *Hub `json:"hub,omitempty" bson:"hub,omitempty"`
+
+	Unregister chan bool `json:"unregister,omitempty" bson:"unregister,omitempty"`
 }

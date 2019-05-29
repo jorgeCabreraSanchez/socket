@@ -12,7 +12,7 @@ import (
 )
 
 var addr = flag.String("addr", "localhost:5001", "http service address")
-var auth = flag.String("Authorization", "Bearer s0aKwZJ2JRmO9n8O-ZIJN0iIH-zpHfAeJ9WHmgAMtaD2s_JsqquzX2l2oAE-kOagXkNqOrbwNps70NEY1PKvNTilRA_aKxtM2VwUdw8Rb5fORvIzbrP07o0p9YsvLpbimh-7ugMAcZmmqytyQyeW5R9JLmW2LomR_2jxJNiDInARNsGKa34Mw3s5ASH7Kjodqwu_63GOzpHRjRJLnZHgOlNV6SDqzLP0rnkYT2y_5520Te9-NQiZct_pKPlIiKx2Z0oy78c9Wj8_zrUjG2ZtOWltrhomZ526DtHCOsC9X70rWp0YXg==", "auth for socket")
+var auth = flag.String("Authorization", "Bearer Cxz5_oYolaMWWF6g9Ra3G_kTu9HcvZ3cqoyffn7XHWXR8PNMp8fDl2S0Fw1yZ1ee2X5VpVRiGTBf8hCT9-FPuDvFyYsFVfvOLx3xov9BBcZ2araRqIbc3UeBr_pXj38k2Nx2aSVMgFdxsDTAXXMb1YvlaGxz3qfoCgEotecLu4DwYAWMkrfg4Va0M8oZEifdO8nejiHPkTIH4Ny49mV_E7lGUGbWmQYNttvOGsjOg7BPl3wIbEPvAjGFFB2oQP8BjOHXN5EnIR9O4ZPVj7sQRgfBQy9KHHRP0pUFo9jRyDufIg1RmQ==", "auth for socket")
 
 func main() {
 	flag.Parse()
