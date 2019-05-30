@@ -12,7 +12,7 @@ import (
 )
 
 var addr = flag.String("addr", "localhost:5001", "http service address")
-var auth = flag.String("Authorization", "Bearer Cxz5_oYolaMWWF6g9Ra3G_kTu9HcvZ3cqoyffn7XHWXR8PNMp8fDl2S0Fw1yZ1ee2X5VpVRiGTBf8hCT9-FPuDvFyYsFVfvOLx3xov9BBcZ2araRqIbc3UeBr_pXj38k2Nx2aSVMgFdxsDTAXXMb1YvlaGxz3qfoCgEotecLu4DwYAWMkrfg4Va0M8oZEifdO8nejiHPkTIH4Ny49mV_E7lGUGbWmQYNttvOGsjOg7BPl3wIbEPvAjGFFB2oQP8BjOHXN5EnIR9O4ZPVj7sQRgfBQy9KHHRP0pUFo9jRyDufIg1RmQ==", "auth for socket")
+var auth = flag.String("Authorization", "Bearer Zy0X31QIqIxGN2R3m5wONc8XeeAc-8MsEaaB5KQT_Ovx2KrZJygmjjsLS6D8MKJoSX60UaT879ftFjYrbSw2pc0GfIE0fD4JZwzno-3vBQwyy4xrYp046ZEFsI0OoboUc5XH8Furml8dz-TKtda3YckOd5ftZ2EWAhgtK2UHX5J-5jyN6mwEF0Ocdm5lHPrKdbmr3KcG_T5zOGE1t8Uw8yIHBltdhQubzCfvr5dKeZOcjLqjOG3meJUQe2S5cCRVeGt5bSQC0Wx6vfNLOn9RonDTYjeQySiRd-g_kcj7F3rDH69rIA==", "auth for socket")
 
 func main() {
 	flag.Parse()
@@ -51,12 +51,12 @@ func main() {
 		select {
 		case <-done:
 			return
-		case t := <-ticker.C:
-			err := c.WriteMessage(websocket.TextMessage, []byte(t.String()))
-			if err != nil {
-				log.Println("write:", err)
-				return
-			}
+		// case t := <-ticker.C:
+		// 	err := c.WriteMessage(websocket.TextMessage, []byte(t.String()))
+		// 	if err != nil {
+		// 		log.Println("write:", err)
+		// 		return
+		// 	}
 		case <-interrupt:
 			log.Println("interrupt")
 

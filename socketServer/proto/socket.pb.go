@@ -111,6 +111,131 @@ func (m *ListenRoomBody) GetUserId() string {
 	return ""
 }
 
+type UnregisterRoomBody struct {
+	AuctionId            string   `protobuf:"bytes,1,opt,name=auctionId,proto3" json:"auctionId,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *UnregisterRoomBody) Reset()         { *m = UnregisterRoomBody{} }
+func (m *UnregisterRoomBody) String() string { return proto.CompactTextString(m) }
+func (*UnregisterRoomBody) ProtoMessage()    {}
+func (*UnregisterRoomBody) Descriptor() ([]byte, []int) {
+	return fileDescriptor_6b39cc5e3943e1cc, []int{2}
+}
+
+func (m *UnregisterRoomBody) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_UnregisterRoomBody.Unmarshal(m, b)
+}
+func (m *UnregisterRoomBody) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_UnregisterRoomBody.Marshal(b, m, deterministic)
+}
+func (m *UnregisterRoomBody) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UnregisterRoomBody.Merge(m, src)
+}
+func (m *UnregisterRoomBody) XXX_Size() int {
+	return xxx_messageInfo_UnregisterRoomBody.Size(m)
+}
+func (m *UnregisterRoomBody) XXX_DiscardUnknown() {
+	xxx_messageInfo_UnregisterRoomBody.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_UnregisterRoomBody proto.InternalMessageInfo
+
+func (m *UnregisterRoomBody) GetAuctionId() string {
+	if m != nil {
+		return m.AuctionId
+	}
+	return ""
+}
+
+type StopListenRoomBody struct {
+	AuctionId            string   `protobuf:"bytes,1,opt,name=auctionId,proto3" json:"auctionId,omitempty"`
+	UserId               string   `protobuf:"bytes,2,opt,name=userId,proto3" json:"userId,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *StopListenRoomBody) Reset()         { *m = StopListenRoomBody{} }
+func (m *StopListenRoomBody) String() string { return proto.CompactTextString(m) }
+func (*StopListenRoomBody) ProtoMessage()    {}
+func (*StopListenRoomBody) Descriptor() ([]byte, []int) {
+	return fileDescriptor_6b39cc5e3943e1cc, []int{3}
+}
+
+func (m *StopListenRoomBody) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_StopListenRoomBody.Unmarshal(m, b)
+}
+func (m *StopListenRoomBody) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_StopListenRoomBody.Marshal(b, m, deterministic)
+}
+func (m *StopListenRoomBody) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StopListenRoomBody.Merge(m, src)
+}
+func (m *StopListenRoomBody) XXX_Size() int {
+	return xxx_messageInfo_StopListenRoomBody.Size(m)
+}
+func (m *StopListenRoomBody) XXX_DiscardUnknown() {
+	xxx_messageInfo_StopListenRoomBody.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StopListenRoomBody proto.InternalMessageInfo
+
+func (m *StopListenRoomBody) GetAuctionId() string {
+	if m != nil {
+		return m.AuctionId
+	}
+	return ""
+}
+
+func (m *StopListenRoomBody) GetUserId() string {
+	if m != nil {
+		return m.UserId
+	}
+	return ""
+}
+
+type CreateRoomBody struct {
+	AuctionId            string   `protobuf:"bytes,1,opt,name=auctionId,proto3" json:"auctionId,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *CreateRoomBody) Reset()         { *m = CreateRoomBody{} }
+func (m *CreateRoomBody) String() string { return proto.CompactTextString(m) }
+func (*CreateRoomBody) ProtoMessage()    {}
+func (*CreateRoomBody) Descriptor() ([]byte, []int) {
+	return fileDescriptor_6b39cc5e3943e1cc, []int{4}
+}
+
+func (m *CreateRoomBody) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CreateRoomBody.Unmarshal(m, b)
+}
+func (m *CreateRoomBody) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CreateRoomBody.Marshal(b, m, deterministic)
+}
+func (m *CreateRoomBody) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CreateRoomBody.Merge(m, src)
+}
+func (m *CreateRoomBody) XXX_Size() int {
+	return xxx_messageInfo_CreateRoomBody.Size(m)
+}
+func (m *CreateRoomBody) XXX_DiscardUnknown() {
+	xxx_messageInfo_CreateRoomBody.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CreateRoomBody proto.InternalMessageInfo
+
+func (m *CreateRoomBody) GetAuctionId() string {
+	if m != nil {
+		return m.AuctionId
+	}
+	return ""
+}
+
 type Empty struct {
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -121,7 +246,7 @@ func (m *Empty) Reset()         { *m = Empty{} }
 func (m *Empty) String() string { return proto.CompactTextString(m) }
 func (*Empty) ProtoMessage()    {}
 func (*Empty) Descriptor() ([]byte, []int) {
-	return fileDescriptor_6b39cc5e3943e1cc, []int{2}
+	return fileDescriptor_6b39cc5e3943e1cc, []int{5}
 }
 
 func (m *Empty) XXX_Unmarshal(b []byte) error {
@@ -145,24 +270,32 @@ var xxx_messageInfo_Empty proto.InternalMessageInfo
 func init() {
 	proto.RegisterType((*UploadAuctionBody)(nil), "socket.UploadAuctionBody")
 	proto.RegisterType((*ListenRoomBody)(nil), "socket.ListenRoomBody")
+	proto.RegisterType((*UnregisterRoomBody)(nil), "socket.UnregisterRoomBody")
+	proto.RegisterType((*StopListenRoomBody)(nil), "socket.StopListenRoomBody")
+	proto.RegisterType((*CreateRoomBody)(nil), "socket.CreateRoomBody")
 	proto.RegisterType((*Empty)(nil), "socket.Empty")
 }
 
 func init() { proto.RegisterFile("socket.proto", fileDescriptor_6b39cc5e3943e1cc) }
 
 var fileDescriptor_6b39cc5e3943e1cc = []byte{
-	// 171 bytes of a gzipped FileDescriptorProto
+	// 241 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x29, 0xce, 0x4f, 0xce,
 	0x4e, 0x2d, 0xd1, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x83, 0xf0, 0x94, 0x0c, 0xb9, 0x04,
 	0x43, 0x0b, 0x72, 0xf2, 0x13, 0x53, 0x1c, 0x4b, 0x93, 0x4b, 0x32, 0xf3, 0xf3, 0x9c, 0xf2, 0x53,
 	0x2a, 0x85, 0x64, 0xb8, 0x38, 0x13, 0x21, 0x5c, 0xcf, 0x14, 0x09, 0x46, 0x05, 0x46, 0x0d, 0xce,
 	0x20, 0x84, 0x80, 0x92, 0x1b, 0x17, 0x9f, 0x4f, 0x66, 0x71, 0x49, 0x6a, 0x5e, 0x50, 0x7e, 0x7e,
 	0x2e, 0x61, 0xf5, 0x42, 0x62, 0x5c, 0x6c, 0xa5, 0xc5, 0xa9, 0x45, 0x9e, 0x29, 0x12, 0x4c, 0x60,
-	0x29, 0x28, 0x4f, 0x89, 0x9d, 0x8b, 0xd5, 0x35, 0xb7, 0xa0, 0xa4, 0xd2, 0xa8, 0x86, 0x8b, 0x2d,
-	0x18, 0xec, 0x1a, 0x21, 0x6b, 0x2e, 0x5e, 0x14, 0xd7, 0x08, 0x49, 0xea, 0x41, 0x5d, 0x8d, 0xe1,
-	0x48, 0x29, 0x5e, 0x98, 0x14, 0xd8, 0x10, 0x25, 0x06, 0x21, 0x53, 0x2e, 0x2e, 0x84, 0xbb, 0x84,
-	0xc4, 0x60, 0xd2, 0xa8, 0x6e, 0xc5, 0xd0, 0x96, 0xc4, 0x06, 0x0e, 0x10, 0x63, 0x40, 0x00, 0x00,
-	0x00, 0xff, 0xff, 0x8e, 0x95, 0x22, 0x52, 0x20, 0x01, 0x00, 0x00,
+	0x29, 0x28, 0x4f, 0xc9, 0x88, 0x4b, 0x28, 0x34, 0xaf, 0x28, 0x35, 0x1d, 0x64, 0x56, 0x11, 0x71,
+	0x66, 0x29, 0x79, 0x71, 0x09, 0x05, 0x97, 0xe4, 0x17, 0x50, 0xc5, 0x7e, 0x3d, 0x2e, 0x3e, 0xe7,
+	0xa2, 0xd4, 0xc4, 0x92, 0x54, 0x22, 0xed, 0x66, 0xe7, 0x62, 0x75, 0xcd, 0x2d, 0x28, 0xa9, 0x34,
+	0xda, 0xc8, 0xc4, 0xc5, 0x16, 0x0c, 0x0e, 0x3e, 0x21, 0x6b, 0x2e, 0x5e, 0x94, 0xe0, 0x13, 0x92,
+	0xd4, 0x83, 0x06, 0x33, 0x46, 0xa8, 0x4a, 0xf1, 0xc2, 0xa4, 0xc0, 0xa6, 0x28, 0x31, 0x08, 0x99,
+	0x72, 0x71, 0x21, 0x3c, 0x22, 0x24, 0x06, 0x93, 0x46, 0xf5, 0x1c, 0xa6, 0x36, 0x5b, 0x2e, 0x3e,
+	0xd4, 0x70, 0x13, 0x92, 0x82, 0x5b, 0x8a, 0x11, 0x9e, 0x58, 0xb5, 0xa3, 0x06, 0x21, 0x42, 0x3b,
+	0x66, 0xd0, 0x62, 0x75, 0x34, 0x22, 0xd4, 0x10, 0x8e, 0x46, 0x0d, 0x49, 0x0c, 0x6d, 0x49, 0x6c,
+	0xe0, 0x64, 0x67, 0x0c, 0x08, 0x00, 0x00, 0xff, 0xff, 0x60, 0xf2, 0xdf, 0x43, 0x86, 0x02, 0x00,
+	0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -180,6 +313,9 @@ type SocketClient interface {
 	// Sends a greeting
 	UploadAuction(ctx context.Context, in *UploadAuctionBody, opts ...grpc.CallOption) (*Empty, error)
 	ListenRoom(ctx context.Context, in *ListenRoomBody, opts ...grpc.CallOption) (*Empty, error)
+	UnregisterRoom(ctx context.Context, in *UnregisterRoomBody, opts ...grpc.CallOption) (*Empty, error)
+	StopListenRoom(ctx context.Context, in *StopListenRoomBody, opts ...grpc.CallOption) (*Empty, error)
+	CreateRoom(ctx context.Context, in *CreateRoomBody, opts ...grpc.CallOption) (*Empty, error)
 }
 
 type socketClient struct {
@@ -208,11 +344,41 @@ func (c *socketClient) ListenRoom(ctx context.Context, in *ListenRoomBody, opts 
 	return out, nil
 }
 
+func (c *socketClient) UnregisterRoom(ctx context.Context, in *UnregisterRoomBody, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, "/socket.Socket/UnregisterRoom", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *socketClient) StopListenRoom(ctx context.Context, in *StopListenRoomBody, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, "/socket.Socket/StopListenRoom", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *socketClient) CreateRoom(ctx context.Context, in *CreateRoomBody, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, "/socket.Socket/CreateRoom", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // SocketServer is the server API for Socket service.
 type SocketServer interface {
 	// Sends a greeting
 	UploadAuction(context.Context, *UploadAuctionBody) (*Empty, error)
 	ListenRoom(context.Context, *ListenRoomBody) (*Empty, error)
+	UnregisterRoom(context.Context, *UnregisterRoomBody) (*Empty, error)
+	StopListenRoom(context.Context, *StopListenRoomBody) (*Empty, error)
+	CreateRoom(context.Context, *CreateRoomBody) (*Empty, error)
 }
 
 // UnimplementedSocketServer can be embedded to have forward compatible implementations.
@@ -224,6 +390,15 @@ func (*UnimplementedSocketServer) UploadAuction(ctx context.Context, req *Upload
 }
 func (*UnimplementedSocketServer) ListenRoom(ctx context.Context, req *ListenRoomBody) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListenRoom not implemented")
+}
+func (*UnimplementedSocketServer) UnregisterRoom(ctx context.Context, req *UnregisterRoomBody) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UnregisterRoom not implemented")
+}
+func (*UnimplementedSocketServer) StopListenRoom(ctx context.Context, req *StopListenRoomBody) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method StopListenRoom not implemented")
+}
+func (*UnimplementedSocketServer) CreateRoom(ctx context.Context, req *CreateRoomBody) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateRoom not implemented")
 }
 
 func RegisterSocketServer(s *grpc.Server, srv SocketServer) {
@@ -266,6 +441,60 @@ func _Socket_ListenRoom_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Socket_UnregisterRoom_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UnregisterRoomBody)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SocketServer).UnregisterRoom(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/socket.Socket/UnregisterRoom",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SocketServer).UnregisterRoom(ctx, req.(*UnregisterRoomBody))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Socket_StopListenRoom_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StopListenRoomBody)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SocketServer).StopListenRoom(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/socket.Socket/StopListenRoom",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SocketServer).StopListenRoom(ctx, req.(*StopListenRoomBody))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Socket_CreateRoom_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateRoomBody)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SocketServer).CreateRoom(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/socket.Socket/CreateRoom",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SocketServer).CreateRoom(ctx, req.(*CreateRoomBody))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Socket_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "socket.Socket",
 	HandlerType: (*SocketServer)(nil),
@@ -277,6 +506,18 @@ var _Socket_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListenRoom",
 			Handler:    _Socket_ListenRoom_Handler,
+		},
+		{
+			MethodName: "UnregisterRoom",
+			Handler:    _Socket_UnregisterRoom_Handler,
+		},
+		{
+			MethodName: "StopListenRoom",
+			Handler:    _Socket_StopListenRoom_Handler,
+		},
+		{
+			MethodName: "CreateRoom",
+			Handler:    _Socket_CreateRoom_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

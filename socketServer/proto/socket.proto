@@ -22,6 +22,12 @@ service Socket {
   rpc UploadAuction (UploadAuctionBody) returns (Empty) {}
 
   rpc ListenRoom (ListenRoomBody) returns (Empty) {}
+
+  rpc UnregisterRoom (UnregisterRoomBody) returns (Empty) {}
+
+  rpc StopListenRoom (StopListenRoomBody) returns (Empty) {}
+
+  rpc CreateRoom (CreateRoomBody) returns (Empty) {}
 }
 
 // The request message containing the user's name.
@@ -32,6 +38,19 @@ message UploadAuctionBody {
 message ListenRoomBody {
   string auctionId = 1;
   string userId = 2;
+} 
+
+message UnregisterRoomBody {
+  string auctionId = 1;
+}
+
+message StopListenRoomBody {
+  string auctionId = 1;
+  string userId = 2;
+}
+
+message CreateRoomBody {
+  string auctionId = 1;
 }
 
 message Empty {}

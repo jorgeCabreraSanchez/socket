@@ -3,6 +3,7 @@ package Mongodb
 import (
 	"errors"
 	"gnommoApiRest/Config"
+	"log"
 	model "socket/socketServer/Model"
 	"time"
 
@@ -25,6 +26,36 @@ func MongoStart() *mgo.Database {
 
 func SetCollection(session *mgo.Session, collection string) *mgo.Collection {
 	return session.DB(mongoConfig.Name).C(collection)
+}
+
+func GetAvgOfAnAuction(auctionId bson.ObjectId, db *mgo.Session) (model.UpdateChatRoom, error) {
+	dbsession := db.Copy()
+	defer dbsession.Close()
+	collection := SetCollection(dbsession, "bids")
+
+	var pipeline []bson.M
+	matchBids := bson.M{"$match": bson.M{"auctionId": auctionId, "instance.status": "ACTIVE", "won": bson.M{"$exists": false}}}
+	pipeline = append(pipeline, matchBids)
+
+	groupAuctions := bson.M{"$group": bson.M{
+		"_id": "$auctionId",
+		"avg": bson.M{"$avg": "$offert"},
+	}}
+	pipeline = append(pipeline, groupAuctions)
+
+	project := bson.M{"$project": bson.M{"auctionId": "$_id", "avg": 1}}
+	pipeline = append(pipeline, project)
+
+	var modelToReturn model.UpdateChatRoom
+	pipe := collection.Pipe(pipeline)
+	errFind := pipe.One(&modelToReturn)
+	if errFind != nil {
+		return modelToReturn, errFind
+	}
+
+	log.Print(modelToReturn)
+
+	return modelToReturn, nil
 }
 
 func GetAuctionsThatIdoABidWithHisAvg(userId bson.ObjectId, db *mgo.Session) ([]bson.M, error) {

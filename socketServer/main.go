@@ -13,34 +13,60 @@ import (
 	model "socket/socketServer/Model"
 	pb "socket/socketServer/proto"
 
+	"gopkg.in/mgo.v2/bson"
+
 	"google.golang.org/grpc"
+	"gopkg.in/mgo.v2"
 )
 
 type server struct {
 	Hub *model.Hub
+	Db  *mgo.Session
 }
 
 // SayHello implements helloworld.SocketServer
 func (c *server) UploadAuction(ctx context.Context, in *pb.UploadAuctionBody) (*pb.Empty, error) {
-	log.Printf("Received: %v", in.AuctionId)
-	c.Hub.UpdatedChatRoom <- in.AuctionId
+	log.Printf("UploadAuction: %v", in.AuctionId)
+
+	dbsession := c.Db.Copy()
+	defer dbsession.Close()
+
+	updateChatRoom, err := Mongodb.GetAvgOfAnAuction(bson.ObjectIdHex(in.AuctionId), dbsession)
+	if err != nil {
+		log.Print("err uploading: ", err)
+		return &pb.Empty{}, err
+	}
+	c.Hub.UpdatedChatRoom <- &updateChatRoom
 	return &pb.Empty{}, nil
 }
 
 func (c *server) ListenRoom(ctx context.Context, in *pb.ListenRoomBody) (*pb.Empty, error) {
-	log.Printf("Received: %v", in.AuctionId)
+	log.Printf("ListenRoom: %v", in.AuctionId)
 	c.Hub.EnterRoom <- &model.EnterRoom{AuctionId: in.AuctionId, UserId: in.UserId}
+	return &pb.Empty{}, nil
+}
+
+func (c *server) UnregisterRoom(ctx context.Context, in *pb.UnregisterRoomBody) (*pb.Empty, error) {
+	log.Printf("UnregisterRoom: %v", in.AuctionId)
+	c.Hub.UnregisterRoom <- in.AuctionId
+	return &pb.Empty{}, nil
+}
+
+func (c *server) StopListenRoom(ctx context.Context, in *pb.StopListenRoomBody) (*pb.Empty, error) {
+	log.Printf("StopListenRoom: %v", in.AuctionId)
+	c.Hub.StopListenRoom <- &model.StopListenRoom{AuctionId: in.AuctionId, UserId: in.UserId}
+	return &pb.Empty{}, nil
+}
+
+func (c *server) CreateRoom(ctx context.Context, in *pb.CreateRoomBody) (*pb.Empty, error) {
+	log.Printf("CreateRoom: %v", in.AuctionId)
+	c.Hub.CreateRoom <- in.AuctionId
 	return &pb.Empty{}, nil
 }
 
 func main() {
 	config := Config.GetAll()
 	db := Mongodb.MongoStart()
-
-	// socketio.Connection(server, db.Session)
-	// socketio.Disconnection(server)
-	// socketio.Error(server)
-	// socketio.SubscribeToAuction(server, db.Session
 
 	hub := Hub.NewHub()
 	go hub.Run()
@@ -57,7 +83,7 @@ func main() {
 	}
 
 	s := grpc.NewServer()
-	pb.RegisterSocketServer(s, &server{Hub: hub.Hub})
+	pb.RegisterSocketServer(s, &server{Hub: hub.Hub, Db: db.Session})
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}

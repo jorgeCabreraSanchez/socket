@@ -23,11 +23,13 @@ func NewHub() *HubInterface {
 	return &HubInterface{
 		Hub: &model.Hub{
 			Rooms:           make(map[string][]*model.Client),
+			Clients:         make(map[string]*model.Client),
 			EnterRoom:       make(chan *model.EnterRoom),
 			CreateRoom:      make(chan string),
-			UpdatedChatRoom: make(chan string),
+			UpdatedChatRoom: make(chan *model.UpdateChatRoom),
 			Unregister:      make(chan *model.Client),
-			Clients:         make(map[string]*model.Client),
+			UnregisterRoom:  make(chan string),
+			StopListenRoom:  make(chan *model.StopListenRoom),
 			RegisterClient:  make(chan *model.Client),
 		},
 	}
@@ -56,17 +58,27 @@ func (hubInterface *HubInterface) Run() {
 				h.Rooms[enterRoom.AuctionId] = append(h.Rooms[enterRoom.AuctionId], client)
 			}
 
+		case stopListenRoom := <-h.StopListenRoom:
+			log.Printf("Client %v stop listen room %v", stopListenRoom.UserId, stopListenRoom.AuctionId)
+			i, err := Helpers.ArrayIndexOf(h.Rooms[stopListenRoom.AuctionId], h.Clients[stopListenRoom.UserId])
+			if err != nil {
+				log.Print("err finding in clients: " + err.Error())
+			}
+			if i != -1 {
+				h.Rooms[stopListenRoom.AuctionId] = append(h.Rooms[stopListenRoom.AuctionId][:i], h.Rooms[stopListenRoom.AuctionId][i+1:]...)
+			}
+
 		case client := <-h.Unregister:
 			log.Print("unregister")
 			// client disconnect from the socket
 			// delete him from all rooms
-			for _, clients := range h.Rooms {
+			for k, clients := range h.Rooms {
 				i, err := Helpers.ArrayIndexOf(clients, client)
 				if err != nil {
 					log.Print("err finding in clients: " + err.Error())
 				}
 				if i != -1 {
-					clients = append(clients[:i], clients[i+1:]...)
+					h.Rooms[k] = append(clients[:i], clients[i+1:]...)
 				}
 			}
 
@@ -76,25 +88,34 @@ func (hubInterface *HubInterface) Run() {
 				close(client.Send)
 			}
 
-		case room := <-h.CreateRoom:
-			log.Print("room " + room + " created")
-			h.Rooms[room] = []*model.Client{}
+		case roomId := <-h.UnregisterRoom:
+			log.Printf("Room %v deleted", roomId)
+			if _, ok := h.Rooms[roomId]; ok {
+				delete(h.Rooms, roomId)
+			}
 
-		case chatRoomId := <-h.UpdatedChatRoom:
-			log.Print("Update room " + chatRoomId)
-			for _, client := range h.Rooms[chatRoomId] {
-				tal, _ := json.Marshal("tal")
-				// calculate avg and send
-				client.Send <- tal
+		case roomId := <-h.CreateRoom:
+			log.Print("room " + roomId + " created")
+			if _, ok := h.Rooms[roomId]; !ok {
+				h.Rooms[roomId] = []*model.Client{}
+			}
+
+		case updateChatRoom := <-h.UpdatedChatRoom:
+			log.Print("Update room ", updateChatRoom.AuctionId)
+			if clients, ok := h.Rooms[updateChatRoom.AuctionId.Hex()]; ok {
+				for _, client := range clients {
+					avg, _ := json.Marshal(updateChatRoom.Avg)
+					client.Send <- avg
+				}
 			}
 
 		case client := <-h.RegisterClient:
-			// find all bids where he is and enter in his rooms
 			log.Print("register")
 			h.Clients[client.UserId.Hex()] = client
 		}
 
 		log.Print("clients: ", h.Clients)
 		log.Printf("rooms: %v", h.Rooms)
+		log.Print("---------------------")
 	}
 }
