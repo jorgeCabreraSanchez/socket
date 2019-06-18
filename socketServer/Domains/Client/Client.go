@@ -78,13 +78,12 @@ func (clientInterface *ClientInterface) ReadPump() {
 // executing all writes from this goroutine.
 func (clientInterface *ClientInterface) WritePump() {
 	c := clientInterface.Client
-	ticker := time.NewTicker(pingPeriod)
 	defer func() {
-		ticker.Stop()
 		c.Conn.Close()
 	}()
 	for {
 		select {
+
 		case message, ok := <-c.Send:
 			c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if !ok {
@@ -109,11 +108,7 @@ func (clientInterface *ClientInterface) WritePump() {
 			if err := w.Close(); err != nil {
 				return
 			}
-		case <-ticker.C:
-			c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
-			if err := c.Conn.WriteMessage(websocket.PingMessage, nil); err != nil {
-				return
-			}
+
 		}
 	}
 }
