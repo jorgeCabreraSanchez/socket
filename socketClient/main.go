@@ -12,7 +12,7 @@ import (
 )
 
 var addr = flag.String("addr", "localhost:5001", "http service address")
-var auth = flag.String("Authorization", "Bearer Zy0X31QIqIxGN2R3m5wONc8XeeAc-8MsEaaB5KQT_Ovx2KrZJygmjjsLS6D8MKJoSX60UaT879ftFjYrbSw2pc0GfIE0fD4JZwzno-3vBQwyy4xrYp046ZEFsI0OoboUc5XH8Furml8dz-TKtda3YckOd5ftZ2EWAhgtK2UHX5J-5jyN6mwEF0Ocdm5lHPrKdbmr3KcG_T5zOGE1t8Uw8yIHBltdhQubzCfvr5dKeZOcjLqjOG3meJUQe2S5cCRVeGt5bSQC0Wx6vfNLOn9RonDTYjeQySiRd-g_kcj7F3rDH69rIA==", "auth for socket")
+var auth = flag.String("Authorization", "Bearer x", "auth for socket")
 
 func main() {
 	flag.Parse()
